@@ -7,11 +7,6 @@ pub struct SubscriptionFormData {
     email: String,
 }
 
-impl SubscriptionFormData {
-    fn new(name: String, email: String) -> Self {
-        Self { name, email }
-    }
-}
 pub async fn subscribe(form: web::Form<SubscriptionFormData>) -> impl Responder {
     println!("{:#?}", form);
     HttpResponse::Ok().body(format!(
@@ -26,6 +21,12 @@ mod tests {
 
     use crate::build_app;
     use crate::routes::subscribe::SubscriptionFormData;
+
+    impl SubscriptionFormData {
+        fn new(name: String, email: String) -> Self {
+            Self { name, email }
+        }
+    }
 
     #[actix_web::test]
     async fn subscribe_returns_200_for_valid_form_data() {
