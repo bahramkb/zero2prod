@@ -1,0 +1,17 @@
+### GET request to health check endpoint
+GET http://localhost:8000/health_check
+
+### POST request to subscribe check endpoint with valid data
+@name = bahram
+@email = test@gmail.com
+POST http://localhost:8000/subscribe
+Content-Type: application/x-www-form-urlencoded
+
+name = {{name}} &
+email = {{email}}
+
+### POST request to subscribe check endpoint with Invalid data
+POST http://localhost:8000/subscribe
+Content-Type: application/x-www-form-urlencoded
+
+name = {{name}}
