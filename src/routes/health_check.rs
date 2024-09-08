@@ -9,7 +9,7 @@ mod tests {
 
     use crate::build_app;
     #[actix_web::test]
-    async fn dummy_test() {
+    async fn test_health_check_get() {
         let app = test::init_service(build_app!()).await;
         let req = test::TestRequest::get().uri("/health_check").to_request();
         let response = test::call_service(&app, req).await;
