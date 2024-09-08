@@ -5,7 +5,7 @@ pub async fn health_check() -> impl Responder {
 
 #[cfg(test)]
 mod tests {
-    use actix_web::{test, App, web};
+    use actix_web::{test, web, App};
 
     use crate::build_app;
     #[actix_web::test]
