@@ -9,6 +9,7 @@ pub struct SubscriptionFormData {
 
 pub async fn subscribe(form: web::Form<SubscriptionFormData>) -> impl Responder {
     println!("{:#?}", form);
+
     HttpResponse::Ok().body(format!(
         "Successfully subscribed name: {}, email: {}",
         form.name, form.email
@@ -19,8 +20,9 @@ pub async fn subscribe(form: web::Form<SubscriptionFormData>) -> impl Responder 
 mod tests {
     use actix_web::{test, web, App};
 
+    use super::*;
     use crate::build_app;
-    use crate::routes::subscribe::SubscriptionFormData;
+    use crate::configuration::get_configuration;
 
     impl SubscriptionFormData {
         fn new(name: String, email: String) -> Self {
@@ -40,6 +42,13 @@ mod tests {
             .to_request();
         let response = test::call_service(&app, req).await;
 
+        let configuration = get_configuration().expect("Failed to read configuration.");
+        let connection_string = configuration.database.connection_string();
+
+        let connection = sqlx::MySqlPool::connect(&connection_string)
+            .await
+            .expect("Failed to connect to MySQL.");
+
         assert!(response.status().is_success());
 
         let body = test::read_body(response).await;
@@ -50,6 +59,17 @@ mod tests {
                 test_data.name, test_data.email
             )
         );
+
+        let saved = sqlx::query!(
+            "SELECT * FROM subscriptions WHERE email = ?",
+            test_data.email
+        )
+        .fetch_one(&connection)
+        .await
+        .expect("Failed to fetch saved subscription.");
+
+        assert_eq!(saved.email, test_data.email);
+        assert_eq!(saved.name, test_data.name);
     }
     #[actix_web::test]
     async fn subscribe_returns_400_when_data_is_missing() {
